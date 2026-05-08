@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Couchbase Consolidation TCO Estimator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="brand-row">
+      <div class="logo-mark" aria-hidden="true"></div>
+      <span>Couchbase directional TCO prototype</span>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Estimated, adjustable</p>
+        <h1>Estimate the cost of running data sprawl vs. consolidating with Couchbase</h1>
+        <p class="subhead">Select current tools, adjust workload assumptions, and see a directional annual savings estimate based on editable assumptions.</p>
+      </div>
+      <div class="hero-card">
+        <strong>Important!</strong>
+        <p>This estimator does not guarantee savings. Treat the numbers as a starting point for discussion, not a quote.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel inputs-panel" aria-label="Inputs">
+      <div class="section-heading">
+        <p class="eyebrow">Step 1</p>
+        <h2>Current tools</h2>
+      </div>
+      <div id="toolGroups" class="tool-groups"></div>
+
+      <div class="section-heading spaced">
+        <p class="eyebrow">Step 2</p>
+        <h2>Workload</h2>
+      </div>
+      <div id="workloadInputs" class="input-stack"></div>
+
+      <details class="advanced" open>
+        <summary>Cost assumptions</summary>
+        <div id="assumptionInputs" class="input-stack"></div>
+      </details>
+
+      <details class="advanced">
+        <summary>Advanced model knobs</summary>
+        <div id="advancedInputs" class="input-stack"></div>
+      </details>
+    </section>
+
+    <aside class="panel results-panel" aria-label="Results">
+      <div class="section-heading">
+        <p class="eyebrow">Estimated results</p>
+        <h2>Directional annual impact</h2>
+      </div>
+
+      <div class="result-grid">
+        <article class="result-card primary">
+          <span>Estimated Annual Savings</span>
+          <strong id="annualSavings">$0</strong>
+        </article>
+        <article class="result-card">
+          <span>Current Annual Cost</span>
+          <strong id="currentAnnualCost">$0</strong>
+        </article>
+        <article class="result-card">
+          <span>Estimated Couchbase Cost</span>
+          <strong id="couchbaseAnnualCost">$0</strong>
+        </article>
+        <article class="result-card">
+          <span>Payback Period</span>
+          <strong id="paybackMonths">N/A</strong>
+        </article>
+        <article class="result-card">
+          <span>Complexity Reduction</span>
+          <strong id="complexityReduction">0%</strong>
+        </article>
+        <article class="result-card">
+          <span>Tools Consolidated</span>
+          <strong id="selectedToolCount">0</strong>
+        </article>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <section class="summary-box">
+        <h3>Selected tools</h3>
+        <p id="selectedToolsSummary">None selected yet.</p>
+      </section>
+
+      <section class="summary-box">
+        <h3>Benchmark notes used</h3>
+        <ul id="benchmarkNotes" class="benchmark-list"></ul>
+      </section>
+
+      <details class="state-panel">
+        <summary>State JSON</summary>
+        <div class="button-row">
+          <button id="copyState" type="button">Export state JSON</button>
+          <span id="copyStatus" role="status"></span>
+        </div>
+        <pre id="stateJson"></pre>
+      </details>
+    </aside>
+  </main>
+
+  <footer>
+    <p>Built as a prototype: no backend, no tracking, no lead form.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
