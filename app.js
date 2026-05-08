@@ -99,7 +99,7 @@ function optionMeta(label, value, options, tooltip, source, details) {
 const INPUTS = {
   workload: {
     opsPerSecond: inputMeta("Ops/sec", 25000, 10000, 1000000, 500, "Sustained application operations per second across the selected workloads.", "Customer input or discovery estimate", "Use observed peak/sustained throughput when available. This model scales infrastructure sublinearly so it does not simply multiply cost by ops/sec."),
-    dataSizeTb: inputMeta("Data size (GB)", 1000, 100, 5000, 5, "Total operational data size across the selected systems.", "Customer input or discovery estimate", "Use current plus near-term expected operational data. This affects infrastructure cost with a conservative sublinear exponent."),
+    dataSizeGb: inputMeta("Data size (GB)", 1000, 100, 5000, 5, "Total operational data size across the selected systems.", "Customer input or discovery estimate", "Use current plus near-term expected operational data. This affects infrastructure cost with a conservative sublinear exponent."),
     activeUsers: inputMeta("Active users", 20000, 100, 5000000, 1000, "Estimated active user population supported by the selected data stack.", "Customer input or discovery estimate", "Captured for sales context and future model versions. The current formula does not directly price per user."),
     regions: inputMeta("Regions", 2, 1, 8, 1, "Number of deployment regions. Pipeline and infrastructure costs rise as regions increase.", "Customer architecture input", "Pipeline cost is multiplied by region count because every additional region usually adds integration, observability, failover, and troubleshooting burden."),
     uptimeRequirement: optionMeta("Availability target", "99.99", ["99.9", "99.99", "99.999"], "Higher targets generally require more redundancy and operational rigor.", "Customer SLA/SLO target", "The model maps 99.9 to 0.9x, 99.99 to 1.0x, and 99.999 to 1.2x infrastructure pressure. Adjust if a more precise HA model is added.")
@@ -263,7 +263,7 @@ function selectedUseCaseCount() {
 
 function workloadMultiplier() {
   const ops = Math.pow(state.workload.opsPerSecond / 5000, 0.25);
-  const data = Math.pow(state.workload.dataSizeTb / 10, 0.2);
+  const data = Math.pow(state.workload.dataSizeGb / 10000, 0.2);
   const regions = 0.55 + state.workload.regions * 0.45;
   const uptime = { "99.9": 0.9, "99.99": 1, "99.999": 1.2 }[state.workload.uptimeRequirement];
   return Math.max(0.35, ops * data * regions * uptime);
