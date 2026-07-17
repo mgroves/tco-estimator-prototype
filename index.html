@@ -391,8 +391,8 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
         <div class="input-stack" id="costFields"></div>
         <div class="input-stack" style="margin-top:0.9rem;">
           <div class="field">
-            <div><label>Couchbase &mdash; $ / ops-sec / yr</label><p>Entered independently &mdash; not derived as a discount off any competitor's price. Based on Capella per-node pricing (see Pricing sources below).</p></div>
-            <input type="number" id="cbUnitCost" value="1" step="0.1">
+            <div><label>Couchbase &mdash; $ / ops-sec / yr</label><p>Entered independently &mdash; not derived as a discount off any competitor's price. Empirical, from YCSB benchmark data (see Pricing sources below).</p></div>
+            <input type="number" id="cbUnitCost" value="7" step="0.1">
           </div>
         </div>
 
@@ -432,11 +432,11 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
       <details class="advanced" style="margin-top:1rem; background:#fff7e5;">
         <summary>Pricing sources (internal only — do not publish)</summary>
         <div style="margin-top:0.9rem; font-size:0.85rem; color:var(--ink);">
-          <p style="color:var(--amber); font-weight:700;">Not for the public build. Kept here so anyone internal can trace where a default came from.</p>
-          <p><strong>Conversion math.</strong> 1 sustained op/sec &asymp; 31.5M ops/year. For consumption-priced services we convert their published $/million-operations rate directly: <code>$/ops-sec/yr = blended $/M &times; 31.5</code>. For node-, core-, or processor-licensed products, no vendor publishes a $/op rate at all — we take the real list price, annualize it (license amortized over 5 years + support/subscription), and divide by an assumed sustained throughput per unit, which we state explicitly. That last assumption is ours, not the vendor's, and is the main source of uncertainty below.</p>
+          <p style="color:var(--amber); font-weight:700;">Not for the public build. Kept here so anyone internal can trace where a default came from before it's ever quoted externally.</p>
+          <p><strong>Conversion math.</strong> 1 sustained op/sec &asymp; 31.5M ops/year. For consumption-priced services we convert their published $/million-operations rate directly: <code>$/ops-sec/yr = blended $/M &times; 31.5</code>. For node-, core-, or processor-licensed products, no vendor publishes a $/op rate at all — we take the real list price, annualize it (license amortized over 5 years + support/subscription), and divide by an assumed sustained throughput per unit, which we state explicitly. That last assumption is ours, not the vendor's, and is the main source of uncertainty below. Where we have real benchmark data (Firebase, DynamoDB, MongoDB Vector, Couchbase) we use measured throughput against actual billed cost instead of a list-price conversion — flagged as "empirical" below, and preferred over the list-price method wherever available.</p>
           <table class="tco-breakdown-table">
-            <tr><td><strong>Firebase</strong></td><td>$19/ops-sec/yr</td></tr>
-            <tr><td colspan="2">Firestore Standard: $0.30/M reads + $0.90/M writes, official rate card. <a href="https://firebase.google.com/docs/firestore/enterprise/pricing" target="_blank" rel="noopener">firebase.google.com/docs/firestore/enterprise/pricing</a></td></tr>
+            <tr><td><strong>Firebase</strong></td><td>$12/ops-sec/yr</td></tr>
+            <tr><td colspan="2">Updated from empirical benchmark: Google Firestore YCSB throughput vs. monthly bill, small/medium/large/xlarge tiers all agree at ~$12.30/ops-sec/yr. Source: internal calibration workbook (CatW-Calibration.xlsx, "Google Firestore" sheet). No public link — internal data.</td></tr>
 
             <tr><td><strong>Ditto</strong></td><td>$25/ops-sec/yr</td></tr>
             <tr><td colspan="2">No public list price — Ditto is quote-based only. This figure is an unverified placeholder; replace if sales has real numbers. No link.</td></tr>
@@ -444,8 +444,8 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
             <tr><td><strong>MongoDB</strong></td><td>$17/ops-sec/yr</td></tr>
             <tr><td colspan="2">Atlas serverless: $0.10/M reads + $1.00/M writes. <a href="https://www.mongodb.com/pricing" target="_blank" rel="noopener">mongodb.com/pricing</a></td></tr>
 
-            <tr><td><strong>DynamoDB</strong></td><td>$24/ops-sec/yr</td></tr>
-            <tr><td colspan="2">On-demand: $0.25/M read + $1.25/M write request units. <a href="https://aws.amazon.com/dynamodb/pricing/" target="_blank" rel="noopener">aws.amazon.com/dynamodb/pricing</a></td></tr>
+            <tr><td><strong>DynamoDB</strong></td><td>$15/ops-sec/yr</td></tr>
+            <tr><td colspan="2">Updated from empirical benchmark: DynamoDB YCSB throughput at matched capacity/instance tier vs. monthly bill (small tier: ~$15/ops-sec/yr, consistent across two runs). Source: internal calibration workbook (CatW-Calibration.xlsx, "AWS DynamoDB" sheet). No public link — internal data.</td></tr>
 
             <tr><td><strong>Redis</strong></td><td>$1/ops-sec/yr</td></tr>
             <tr><td colspan="2">Derived from Redis Cloud's throughput-tiered plan pricing (memory + ops/sec ceiling bundled). Wide range depending on tier — treat as a rough floor. <a href="https://redis.io/pricing/" target="_blank" rel="noopener">redis.io/pricing</a></td></tr>
@@ -462,16 +462,16 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
             <tr><td><strong>Postgres</strong></td><td>$1/ops-sec/yr</td></tr>
             <tr><td colspan="2">No license (open-source) — figure reflects typical managed-hosting instance rates, e.g. Amazon RDS. <a href="https://aws.amazon.com/rds/postgresql/pricing/" target="_blank" rel="noopener">aws.amazon.com/rds/postgresql/pricing</a></td></tr>
 
-            <tr><td><strong>MongoDB (Vector)</strong></td><td>$24/ops-sec/yr</td></tr>
-            <tr><td colspan="2">MongoDB base rate above plus an assumed premium for dedicated Atlas Search Node compute (our estimate — no published per-op vector rate). <a href="https://www.mongodb.com/products/platform/atlas-vector-search" target="_blank" rel="noopener">mongodb.com/products/platform/atlas-vector-search</a></td></tr>
+            <tr><td><strong>MongoDB (Vector)</strong></td><td>$11,700/ops-sec/yr</td></tr>
+            <tr><td colspan="2">Updated from empirical benchmark: at 1B-vector "hyperscale" scale, Couchbase sustains 500,000+ vector queries per dollar vs. MongoDB's under 300 (a ~1,700&ndash;2,000x cost-per-query gap), applied on top of Couchbase's own baseline below. Note: the gap is far smaller (~5x) at the more moderate 100M-vector scale in the same paper &mdash; this figure represents the hyperscale case specifically, not a typical/moderate deployment. Source: internal whitepaper, "Comparing Vector Search Capabilities of MongoDB and Couchbase Using VectorDBBench" (COU-1372). No public link.</td></tr>
 
-            <tr><td><strong>AlloyDB</strong></td><td>$4/ops-sec/yr</td></tr>
-            <tr><td colspan="2">On-demand HA instance (8 vCPU / 64 GB, ~$2.49/hr) annualized, &divide; an assumed ~6,000 sustained ops/sec (our sizing assumption). <a href="https://cloud.google.com/alloydb/pricing" target="_blank" rel="noopener">cloud.google.com/alloydb/pricing</a></td></tr>
+            <tr><td><strong>AlloyDB</strong></td><td>$13/ops-sec/yr</td></tr>
+            <tr><td colspan="2">Updated from empirical benchmark: head-to-head Couchbase-vs-AlloyDB vector search test on matched hardware ($11.77/hr AlloyDB cluster vs. $12.77/hr Couchbase cluster), at 80% recall. LAION (100M, 768-dim): AlloyDB 7,665 QPS &rarr; ~$13.46/ops-sec/yr. SIFT (100M, 128-dim): AlloyDB 7,824 QPS &rarr; ~$13.18/ops-sec/yr. Averaged and rounded. Source: internal benchmark workbooks (LAION_Results.xlsx, SIFT_Results.xlsx). No public link — internal data.</td></tr>
 
-            <tr><td><strong>Couchbase</strong></td><td>$1/ops-sec/yr</td></tr>
-            <tr><td colspan="2">Capella Enterprise tier, ~$0.56/node-hour, 3-node cluster, annualized, &divide; an assumed ~5,000 sustained ops/sec per node (our sizing assumption). Entered independently of any competitor figure. <a href="https://www.couchbase.com/pricing/" target="_blank" rel="noopener">couchbase.com/pricing</a></td></tr>
+            <tr><td><strong>Couchbase</strong></td><td>$7/ops-sec/yr</td></tr>
+            <tr><td colspan="2">Updated from empirical benchmark: Couchbase YCSB throughput at the small/well-matched tier (~$605/mo instance sustaining ~900&ndash;1,150 ops/sec across three runs) &rarr; ~$6.30&ndash;$8.40/ops-sec/yr, averaging ~$7. Entered independently of any competitor figure. Source: internal calibration workbook (CatW-Calibration.xlsx, "Couchbase" sheet). No public link — internal data. Note: the same LAION/SIFT vector benchmarks above imply a Couchbase vector-specific figure of ~$11/ops-sec/yr &mdash; close enough to this general-workload $7 baseline that we left the shared Couchbase number as-is rather than re-tuning it for one workload type; flag if you'd rather we blend them.</td></tr>
           </table>
-          <p style="margin-top:0.8rem;"><strong>Honest caveat:</strong> the consumption-priced rows (Firebase, MongoDB, DynamoDB) are solid — those vendors publish an actual $/operation rate, so the math is direct. The node/core-licensed rows (Oracle, SQL Server, AlloyDB, Couchbase) depend on a throughput-per-unit assumption we made up from general sizing heuristics, not a vendor spec sheet — swap in real benchmark data if/when we have it. Redis, Memcached, and Postgres have no fixed answer at all since cost scales with tier/instance choice; treat those three as directional floors, not commitments.</p>
+          <p style="margin-top:0.8rem;"><strong>Honest caveat:</strong> the Firebase, DynamoDB, AlloyDB, and Couchbase rows now come from real measured benchmark throughput vs. actual monthly/hourly bills at matched infrastructure &mdash; stronger evidence than a list-price conversion. The MongoDB (Vector) row is a real Couchbase-published benchmark result too, but it's specifically the billion-vector "hyperscale" case, where MongoDB's throughput collapses to single-digit QPS; treat it as the ceiling of the gap, not a universal multiplier. MongoDB (JSON), Oracle, and SQL Server still rely on list-price conversions with a stated sizing assumption. Redis, Memcached, and Postgres have no fixed answer since cost scales with tier/instance choice; treat those three as directional floors, not commitments.</p>
         </div>
       </details>
     </main>
@@ -515,17 +515,17 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
 
 <script>
 const COMPETITORS = [
-  {id:'firebase',   name:'Firebase',    cat:'Mobile', unitCost:19, blurb:'Google’s mobile / realtime backend, billed on reads, writes & storage.', source:'Firestore Standard: $0.30/M reads + $0.90/M writes (official rate card), blended and annualized.'},
+  {id:'firebase',   name:'Firebase',    cat:'Mobile', unitCost:12, blurb:'Google’s mobile / realtime backend, billed on reads, writes & storage.', source:'Empirical: Firestore YCSB benchmark, ~$12.30/ops-sec/yr, consistent across small–xlarge tiers (internal calibration data).'},
   {id:'ditto',      name:'Ditto', cat:'Mobile', unitCost:25, blurb:'Peer-to-peer edge sync for offline-first mobile apps.', source:'Ditto does not publish list pricing (quote-based). Figure is an unverified planning estimate.'},
   {id:'mongodb',    name:'MongoDB',     cat:'JSON / Document', unitCost:17, blurb:'Document database — Atlas list pricing.', source:'Atlas serverless: $0.10/M reads + $1.00/M writes, blended and annualized.'},
-  {id:'dynamodb',   name:'DynamoDB',    cat:'JSON / Document', unitCost:24, blurb:'AWS managed key-value / document store, on-demand pricing.', source:'On-demand: $0.25/M read + $1.25/M write request units (AWS list), blended and annualized.'},
+  {id:'dynamodb',   name:'DynamoDB',    cat:'JSON / Document', unitCost:15, blurb:'AWS managed key-value / document store.', source:'Empirical: DynamoDB YCSB benchmark at matched capacity/instance tier, ~$15/ops-sec/yr (internal calibration data).'},
   {id:'redis',      name:'Redis',       cat:'Cache',  unitCost:1, blurb:'In-memory cache / store.', source:'Derived from Redis Cloud throughput-tiered plan pricing; cheap per-op, as expected for an in-memory cache.'},
   {id:'memcached',  name:'Memcached',   cat:'Cache',  unitCost:0.2, blurb:'Open-source cache; cost reflects hosting only, not license.', source:'No license fee (open-source). Figure derived from typical managed-cache hosting rates.'},
   {id:'oracle',     name:'Oracle',      cat:'SQL',    unitCost:30, blurb:'Enterprise RDBMS — list pricing plus support.', source:'$47.5K/processor list + 22%/yr support, amortized, ÷ an assumed sustained-throughput-per-processor.'},
   {id:'sqlserver',  name:'SQL Server',  cat:'SQL',    unitCost:9, blurb:'Microsoft RDBMS — Enterprise Edition list pricing.', source:'~$7.1K/core list + Software Assurance, amortized, ÷ an assumed sustained-throughput-per-core.'},
   {id:'postgres',   name:'Postgres',    cat:'SQL',    unitCost:1, blurb:'Open-source RDBMS; cost reflects managed hosting, not license.', source:'No license fee (open-source). Figure derived from typical managed-hosting instance rates.'},
-  {id:'mongovector',name:'MongoDB (Vector)', cat:'Vector Search', unitCost:24, blurb:'Vector search add-on on MongoDB Atlas.', source:'Atlas base rate plus an assumed premium for dedicated Search Node compute.'},
-  {id:'alloydb',    name:'AlloyDB',     cat:'Vector Search', unitCost:4, blurb:'Google Cloud’s Postgres-compatible database with vector support.', source:'On-demand HA instance pricing (Google Cloud), ÷ an assumed sustained throughput.'},
+  {id:'mongovector',name:'MongoDB (Vector)', cat:'Vector Search', unitCost:11700, blurb:'Vector search add-on on MongoDB Atlas.', source:'Empirical: VectorDBBench whitepaper, 1B-vector benchmark — Couchbase sustains 500,000+ queries/$ vs MongoDB’s <300 (~1,700x gap), applied to Couchbase’s own baseline.'},
+  {id:'alloydb',    name:'AlloyDB',     cat:'Vector Search', unitCost:13, blurb:'Google Cloud’s Postgres-compatible database with vector support.', source:'Empirical: Couchbase-vs-AlloyDB vector search benchmark on matched hardware (100M vectors, 768-dim and 128-dim), ~$13/ops-sec/yr, consistent across both datasets.'},
 ];
 const CATEGORY_ORDER = ['Mobile','JSON / Document','Cache','SQL','Vector Search'];
 
@@ -534,7 +534,7 @@ const state = {
   ops: 5000,
   unlocked: false,
   overrides: {},
-  cbUnitCost: 1,
+  cbUnitCost: 7,
   engineerCost: 165000,
   adminFTE: 0.40,
   integFTE: 0.25,
