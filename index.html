@@ -470,8 +470,26 @@ footer { padding: 0 4rem 2rem; color: var(--muted); text-align: center; }
 
             <tr><td><strong>Couchbase</strong></td><td>$7/ops-sec/yr</td></tr>
             <tr><td colspan="2">Updated from empirical benchmark: Couchbase YCSB throughput at the small/well-matched tier (~$605/mo instance sustaining ~900&ndash;1,150 ops/sec across three runs) &rarr; ~$6.30&ndash;$8.40/ops-sec/yr, averaging ~$7. Entered independently of any competitor figure. Source: internal calibration workbook (CatW-Calibration.xlsx, "Couchbase" sheet). No public link — internal data. Note: the same LAION/SIFT vector benchmarks above imply a Couchbase vector-specific figure of ~$11/ops-sec/yr &mdash; close enough to this general-workload $7 baseline that we left the shared Couchbase number as-is rather than re-tuning it for one workload type; flag if you'd rather we blend them.</td></tr>
+
+            <tr><td><strong>Pinecone</strong></td><td>$290/ops-sec/yr</td></tr>
+            <tr><td colspan="2">List price (not benchmarked): $8.25/M read units + $2/M write units, Standard tier (Pinecone's own published rate, corroborated across multiple independent secondary sources — the live pricing page renders its rate table client-side so we could not confirm the exact figure directly at fetch time). Assumes ~1 RU per query (typical for a modest namespace size) and the 5 WU/write minimum per Pinecone's own cost docs, blended 50/50 read/write and annualized. <a href="https://docs.pinecone.io/guides/manage-cost/understanding-cost" target="_blank" rel="noopener">docs.pinecone.io/guides/manage-cost/understanding-cost</a></td></tr>
+
+            <tr><td><strong>Elasticsearch</strong></td><td>$2/ops-sec/yr</td></tr>
+            <tr><td colspan="2">List price (not benchmarked): Elastic Cloud Serverless, $0.09/VCU-hour for search + $0.14/VCU-hour for ingest (Elastic's own published rate), blended 70/30 search-weighted (full-text search is read-dominant), &divide; an assumed ~500 sustained ops/sec per VCU (our sizing assumption, not Elastic's — no official ops/sec-per-VCU rating is published). <a href="https://checkthat.ai/brands/elastic/pricing" target="_blank" rel="noopener">Elastic Serverless pricing summary</a></td></tr>
           </table>
-          <p style="margin-top:0.8rem;"><strong>Honest caveat:</strong> the Firebase, DynamoDB, AlloyDB, and Couchbase rows now come from real measured benchmark throughput vs. actual monthly/hourly bills at matched infrastructure &mdash; stronger evidence than a list-price conversion. The MongoDB (Vector) row is a real Couchbase-published benchmark result too, but it's specifically the billion-vector "hyperscale" case, where MongoDB's throughput collapses to single-digit QPS; treat it as the ceiling of the gap, not a universal multiplier. MongoDB (JSON), Oracle, and SQL Server still rely on list-price conversions with a stated sizing assumption. Redis, Memcached, and Postgres have no fixed answer since cost scales with tier/instance choice; treat those three as directional floors, not commitments.</p>
+          <p style="margin-top:0.8rem;"><strong>Honest caveat:</strong> the Firebase, DynamoDB, AlloyDB, and Couchbase rows now come from real measured benchmark throughput vs. actual monthly/hourly bills at matched infrastructure &mdash; stronger evidence than a list-price conversion. The MongoDB (Vector) row is a real Couchbase-published benchmark result too, but it's specifically the billion-vector "hyperscale" case, where MongoDB's throughput collapses to single-digit QPS; treat it as the ceiling of the gap, not a universal multiplier. MongoDB (JSON), Oracle, SQL Server, Pinecone, and Elasticsearch still rely on list-price conversions with a stated sizing assumption — Pinecone and Elasticsearch are new additions this round and haven't been benchmarked yet. Redis, Memcached, and Postgres have no fixed answer since cost scales with tier/instance choice; treat those three as directional floors, not commitments.</p>
+        </div>
+      </details>
+
+      <details class="advanced" style="margin-top:1rem; background:#eef2f5;">
+        <summary>Captured inputs (internal only — for SDR/sales handoff)</summary>
+        <div style="margin-top:0.9rem;">
+          <p class="subhead" style="font-size:0.85rem; margin-bottom:0.8rem;">Live snapshot of everything entered on this form — including the Step 03 advanced inputs — kept in sync as the person changes anything. Not part of the public build; intended to be copied and passed to a sales rep alongside the estimate.</p>
+          <div class="button-row" style="margin:0 0 0.6rem;">
+            <button type="button" id="copyJsonBtn" class="tco-ghost-btn">Copy JSON</button>
+            <span id="copyJsonStatus" style="font-size:0.78rem; color:var(--muted);"></span>
+          </div>
+          <pre id="capturedInputsJson" style="max-height:24rem;"></pre>
         </div>
       </details>
     </main>
@@ -526,8 +544,10 @@ const COMPETITORS = [
   {id:'postgres',   name:'Postgres',    cat:'SQL',    unitCost:1, blurb:'Open-source RDBMS; cost reflects managed hosting, not license.', source:'No license fee (open-source). Figure derived from typical managed-hosting instance rates.'},
   {id:'mongovector',name:'MongoDB (Vector)', cat:'Vector Search', unitCost:11700, blurb:'Vector search add-on on MongoDB Atlas.', source:'Empirical: VectorDBBench whitepaper, 1B-vector benchmark — Couchbase sustains 500,000+ queries/$ vs MongoDB’s <300 (~1,700x gap), applied to Couchbase’s own baseline.'},
   {id:'alloydb',    name:'AlloyDB',     cat:'Vector Search', unitCost:13, blurb:'Google Cloud’s Postgres-compatible database with vector support.', source:'Empirical: Couchbase-vs-AlloyDB vector search benchmark on matched hardware (100M vectors, 768-dim and 128-dim), ~$13/ops-sec/yr, consistent across both datasets.'},
+  {id:'pinecone',   name:'Pinecone',    cat:'Vector Search', unitCost:290, blurb:'Serverless vector database, billed on read/write units + storage.', source:'List price: $8.25/M read units + $2/M write units (Standard tier, official rate), assuming ~1 RU/query & a 5 WU/write minimum, blended 50/50 and annualized.'},
+  {id:'elasticsearch', name:'Elasticsearch', cat:'Full Text Search', unitCost:2, blurb:'Distributed full-text search & analytics engine.', source:'List price: Elastic Cloud Serverless, $0.09/VCU-hr search + $0.14/VCU-hr ingest (official rate), blended 70/30 search-weighted, ÷ an assumed ~500 sustained ops/sec per VCU (our sizing assumption).'},
 ];
-const CATEGORY_ORDER = ['Mobile','JSON / Document','Cache','SQL','Vector Search'];
+const CATEGORY_ORDER = ['Mobile','JSON / Document','Cache','SQL','Vector Search','Full Text Search'];
 
 const state = {
   selected: new Set(),
@@ -690,6 +710,38 @@ function render(){
     html += `<tr><td colspan="2"><span class="tco-breakdown-note">Systems today: ${r.n} → after: 1. Reduction = 1 − (1 ÷ ${r.n}) = ${r.complexityMid.toFixed(0)}%, based on duplicate data copies, patch/security surfaces & integration points removed as each system is consolidated.</span></td></tr>`;
     bt.innerHTML = html;
   }
+
+  updateCapturedJson(r);
+}
+
+function updateCapturedJson(r){
+  const el = document.getElementById('capturedInputsJson');
+  if(!el) return;
+  const selectedNames = COMPETITORS.filter(c => state.selected.has(c.id)).map(c => c.name);
+  const snapshot = {
+    generatedAt: new Date().toISOString(),
+    inputs: {
+      opsPerSecond: state.ops,
+      selectedTools: selectedNames,
+      advancedInputsUnlocked: state.unlocked,
+      costOverridesPerTool: state.overrides,
+      couchbaseUnitCostPerOpsSecPerYear: state.cbUnitCost,
+      engineerAnnualCost: state.engineerCost,
+      adminEngineersPerTool: state.adminFTE,
+      integrationEngineersPerTool: state.integFTE
+    },
+    estimatedResults: r.n === 0 ? null : {
+      toolsSelectedCount: r.n,
+      currentAnnualCost: Math.round(r.currentTotal),
+      couchbaseAnnualCost: Math.round(r.cbTotal),
+      annualSavingsLow: Math.round(Math.max(0, r.savings) * 0.85),
+      annualSavingsHigh: Math.round(Math.max(0, r.savings) * 1.15),
+      savingsPctLow: r.savings > 0 ? +(r.savingsPct * 0.85).toFixed(1) : 0,
+      savingsPctHigh: r.savings > 0 ? +(r.savingsPct * 1.15).toFixed(1) : 0,
+      complexityReductionPct: r.n === 1 ? 0 : +r.complexityMid.toFixed(1)
+    }
+  };
+  el.textContent = JSON.stringify(snapshot, null, 2);
 }
 
 function setOps(v){
@@ -741,6 +793,17 @@ document.addEventListener('click', () => {
 buildToolGroups();
 buildCostFields();
 render();
+
+document.getElementById('copyJsonBtn').addEventListener('click', () => {
+  const text = document.getElementById('capturedInputsJson').textContent;
+  const statusEl = document.getElementById('copyJsonStatus');
+  navigator.clipboard.writeText(text).then(() => {
+    statusEl.textContent = 'Copied!';
+    setTimeout(() => { statusEl.textContent = ''; }, 1800);
+  }).catch(() => {
+    statusEl.textContent = 'Could not copy — select and copy manually.';
+  });
+});
 </script>
 </body>
 </html>
